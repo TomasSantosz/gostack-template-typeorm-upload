@@ -10,7 +10,7 @@ interface Request {
   title: string;
   value: number;
   type: 'income' | 'outcome';
-  category: string;
+  category: Category;
 }
 
 class CreateTransactionService {
@@ -29,17 +29,19 @@ class CreateTransactionService {
     }
 
     const verifyTitleCategory = await categoryRepository.findOne({
-      where: { category },
+      where: {
+        title: category,
+      },
     });
 
     if (verifyTitleCategory) {
-      const category_id = verifyTitleCategory.id;
+      const category_id = verifyTitleCategory;
 
       const transaction = transactionRepository.create({
         title,
         value,
         type,
-        category_id,
+        category: category_id,
       });
       await transactionRepository.save(transaction);
       return transaction;
@@ -47,18 +49,20 @@ class CreateTransactionService {
 
     const createUser = new CreateUserService();
     await createUser.execute({
-      title: category,
+      title: category.title,
     });
 
     const verifyTitleCategory2 = await categoryRepository.findOne({
-      where: { category },
+      where: {
+        title: category,
+      },
     });
 
     const transaction = transactionRepository.create({
       title,
       value,
       type,
-      category_id: verifyTitleCategory2?.id,
+      category: verifyTitleCategory2,
     });
 
     await transactionRepository.save(transaction);
